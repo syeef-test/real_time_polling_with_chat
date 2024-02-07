@@ -1,21 +1,28 @@
 const express = require("express");
 
-const app = express();
 const path = require("path");
 const dotenv = require("dotenv");
 dotenv.config();
 const sequelize = require("./util/database");
+const cors = require("cors");
 
-const PORT = process.env.PORT || 3000;
+const app = express();
+app.use(express.json());
+
+app.use(cors());
+
+//Model Import
+const User = require("./models/userModel");
+
+//Route Import
+const userRoute = require("./routes/userRoute");
+
+app.use("/user", userRoute);
 
 app.use((req, res) => {
   //console.log(req.url);
   res.sendFile(path.join(__dirname, `./public/${req.url}`));
 });
-
-// app.listen(PORT, () => {
-//   console.log(`Server is runing on ${PORT}`);
-// });
 
 async function startServer() {
   try {
