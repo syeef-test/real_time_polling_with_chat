@@ -25,3 +25,33 @@ exports.getPolls = async (req, res, next) => {
       .json({ message: "Internal server error", success: false });
   }
 };
+
+exports.createPoll = async (req, res, next) => {
+  try {
+    // console.log(req.user.id);
+    if (!req.body.question) {
+      return res.status(400).send({ message: "Send all required fields" });
+    }
+
+    // Created  poll
+    const pollInsertData = await Poll.create({
+      question: req.body.question,
+      userId: req.user.id,
+    });
+    console.log(pollInsertData);
+    if (pollInsertData) {
+      return res
+        .status(200)
+        .json({
+          data: pollInsertData,
+          message: "Poll created succesully",
+          success: true,
+        });
+    }
+  } catch (error) {
+    console.error("Error occurred during creating poll data:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
+  }
+};
