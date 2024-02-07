@@ -13,16 +13,23 @@ app.use(cors());
 
 //Model Import
 const User = require("./models/userModel");
+const Poll = require("./models/pollModel");
 
 //Route Import
 const userRoute = require("./routes/userRoute");
+const pollRoute = require("./routes/pollRoute");
 
 app.use("/api/user", userRoute);
+app.use("/api/poll", pollRoute);
 
 app.use((req, res) => {
   //console.log(req.url);
   res.sendFile(path.join(__dirname, `./public/${req.url}`));
 });
+
+//Database relation
+User.hasMany(Poll);
+Poll.belongsTo(User);
 
 async function startServer() {
   try {
