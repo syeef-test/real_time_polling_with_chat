@@ -212,7 +212,7 @@
                         <form onsubmit="editPoll(event)">
                             <div class="mb-3">
                                 <label for="question" class="form-label">Question</label>
-                                <input type="text" class="form-control" id="question" />
+                                <input type="text" class="form-control" id="editQuestion" />
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
@@ -246,10 +246,30 @@
     function hideAddPollModal() {
         $('#addPollModal').modal('hide');
     }
-    function showEditPollModal(pollId) {
-        $('#editPollModal').modal('show');
+    async function showEditPollModal(pollId) {
+        try {
+            const token = localStorage.getItem('token');
+            const data = await axios.get('http://127.0.0.1:3000/api/poll/get_poll_by_id', {
+                params: {
+                    pollId: pollId
+                },
+                headers: {
+                    'authorization': token
+                }
+            });
+            const response = data;
+            //console.log(response.data.poll[0].question);
 
+            const questionInput = document.getElementById('editQuestion');
+            console.log(response.question);
+            questionInput.value = response.data.poll[0].question;
+
+            $('#editPollModal').modal('show');
+        } catch (error) {
+            console.error(error);
+        }
     }
+
     function hideEditPollModal(pollId) {
         $('#editPollModal').modal('hide');
 
@@ -311,7 +331,7 @@
                     <td>${poll.question}</td>
                     <td>${poll.createdAt}</td>
                     <td>
-                        <button class="btn btn-success" onClick='showEditPollModal()'>Edit</button>
+                        <button class="btn btn-success" onClick='showEditPollModal(${poll.id})'>Edit</button>
                         <button class="btn btn-danger">Delete</button>
                     </td>
                 </tr>

@@ -40,16 +40,36 @@ exports.createPoll = async (req, res, next) => {
     });
     console.log(pollInsertData);
     if (pollInsertData) {
-      return res
-        .status(200)
-        .json({
-          data: pollInsertData,
-          message: "Poll created succesully",
-          success: true,
-        });
+      return res.status(200).json({
+        data: pollInsertData,
+        message: "Poll created succesully",
+        success: true,
+      });
     }
   } catch (error) {
     console.error("Error occurred during creating poll data:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
+  }
+};
+
+exports.getPollById = async (req, res, next) => {
+  try {
+    const pollId = req.query.pollId;
+    console.log(pollId);
+    const pollInstance = await Poll.findAll({
+      where: {
+        id: pollId,
+      },
+    });
+
+    //console.log(pollInstances)
+    if (pollInstance && pollInstance.length > 0) {
+      return res.status(200).json({ poll: pollInstance, success: true });
+    }
+  } catch (error) {
+    console.error("Error occurred during geting poll data:", error);
     return res
       .status(500)
       .json({ message: "Internal server error", success: false });
