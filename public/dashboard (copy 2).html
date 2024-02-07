@@ -367,16 +367,11 @@
                 tableBody.insertAdjacentHTML('beforeend', noDataRow);
             } else {
                 response.polls.forEach((poll, index) => {
-
-                    const createdAt = new Date(poll.createdAt);
-                    const formattedDate = createdAt.toLocaleString();
-
-
                     const newRow = `
                 <tr>
                     <th scope="row">${index + 1}</th>
                     <td>${poll.question}</td>
-                    <td>${formattedDate}</td>
+                    <td>${poll.createdAt}</td>
                     <td>
                         <button class="btn btn-success" onClick='showEditPollModal(${poll.id})'>Edit</button>
                         <button class="btn btn-danger" onClick='showDeletePollModal(${poll.id})'>Delete</button>
