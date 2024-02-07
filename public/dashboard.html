@@ -163,7 +163,7 @@
                         </div>
                         <div class="col-10" id="mainContent">
                             Main content
-                            <section id="pollTable">
+                            <section id="pollTable" style="display: none;">
                                 <table class="table">
                                     <thead>
                                         <tr><a href="#" class="btn btn-success" onclick="showAddPollModal()">Add</a>
@@ -200,8 +200,11 @@
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
-                        <button class="btn btn-danger" onClick="hideAddPollModal()">Close</button>
+                        <div>
+                            <button class="btn  btn-danger" onClick="hideAddPollModal()">Close</button>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -213,13 +216,20 @@
                             <div class="mb-3">
                                 <label for="question" class="form-label">Question</label>
                                 <input type="text" class="form-control" id="editQuestion" />
+                                <input type="hidden" class="form-control" id="editQuestionId" />
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
-                        <button class="btn btn-danger" onClick="hideEditPollModal()">Close</button>
+                        <div>
+                            <button class="btn  btn-danger" onClick="hideEditPollModal()">Close</button>
+                        </div>
+
                     </div>
                 </div>
             </div>
+            <!-- Poll Model End -->
+
+
         </section>
 
 
@@ -261,8 +271,10 @@
             //console.log(response.data.poll[0].question);
 
             const questionInput = document.getElementById('editQuestion');
-            console.log(response.question);
+            const questionInputId = document.getElementById('editQuestionId');
+            //console.log(response.question);
             questionInput.value = response.data.poll[0].question;
+            questionInputId.value = pollId;
 
             $('#editPollModal').modal('show');
         } catch (error) {
@@ -274,6 +286,33 @@
         $('#editPollModal').modal('hide');
 
     }
+
+    async function showDeletePollModal(pollId) {
+        try {
+            const token = localStorage.getItem('token');
+            const data = await axios.post('http://127.0.0.1:3000/api/poll/delete_poll_by_id', {
+                pollId: pollId
+            }, {
+                headers: {
+                    'authorization': token
+                }
+            });
+            const response = data;
+
+            console.log(response);
+            if (response.data.success === true) {
+                alert(response.data.message);
+                showPollTable();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    // function hideDeletePollModal(pollId) {
+    //     $('#deletePollModal').modal('hide');
+    // }
 
 
     window.addEventListener("DOMContentLoaded", () => {
@@ -303,6 +342,9 @@
 
     async function showPollTable() {
         try {
+            const pollTableSection = document.querySelector('#pollTable');
+            pollTableSection.style.display = 'block';
+
             const token = localStorage.getItem('token');
             const data = await axios.get('http://127.0.0.1:3000/api/poll/get_polls', {
                 headers: {
@@ -332,7 +374,7 @@
                     <td>${poll.createdAt}</td>
                     <td>
                         <button class="btn btn-success" onClick='showEditPollModal(${poll.id})'>Edit</button>
-                        <button class="btn btn-danger">Delete</button>
+                        <button class="btn btn-danger" onClick='showDeletePollModal(${poll.id})'>Delete</button>
                     </td>
                 </tr>
             `;
@@ -369,6 +411,7 @@
 
                 if (pollData.data.success === true) {
                     alert(pollData.data.message);
+                    showPollTable();
                 }
             }
         } catch (error) {
@@ -377,35 +420,38 @@
     }
 
     async function editPoll(event) {
-        // try {
-        //     event.preventDefault();
-        //     const question = event.target.question.value;
+        try {
+            event.preventDefault();
+            const question = event.target.editQuestion.value;
+            const id = event.target.editQuestionId.value;
 
-        //     if (question.length === 0) {
-        //         alert("Question can't be empty");
-        //     } else {
-        //         const obj = {
-        //             question: question,
-        //         };
-        //         const token = localStorage.getItem('token');
-        //         const pollData = await axios.post(
-        //             "http://127.0.0.1:3000/api/poll/create_poll",
-        //             obj, {
-        //             headers: {
-        //                 'authorization': token
-        //             }
-        //         }
-        //         );
+            if (question.length === 0) {
+                alert("Question can't be empty");
+            } else {
+                const obj = {
+                    question: question,
+                    id: id
+                };
+                const token = localStorage.getItem('token');
+                const pollData = await axios.post(
+                    "http://127.0.0.1:3000/api/poll/edit_poll",
+                    obj, {
+                    headers: {
+                        'authorization': token
+                    }
+                }
+                );
 
-        //         console.log(pollData.data);
+                //console.log(pollData.data.message);
 
-        //         if (pollData.data.success === true) {
-        //             alert(pollData.data.message);
-        //         }
-        //     }
-        // } catch (error) {
-        //     console.log(error);
-        // }
+                if (pollData.data.success === true) {
+                    alert(pollData.data.message);
+                    showPollTable();
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 

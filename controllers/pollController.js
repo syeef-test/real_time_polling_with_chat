@@ -57,7 +57,7 @@ exports.createPoll = async (req, res, next) => {
 exports.getPollById = async (req, res, next) => {
   try {
     const pollId = req.query.pollId;
-    console.log(pollId);
+    //console.log(pollId);
     const pollInstance = await Poll.findAll({
       where: {
         id: pollId,
@@ -70,6 +70,61 @@ exports.getPollById = async (req, res, next) => {
     }
   } catch (error) {
     console.error("Error occurred during geting poll data:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
+  }
+};
+
+exports.editPoll = async (req, res, next) => {
+  try {
+    console.log(req.body);
+
+    const pollId = req.body.id;
+    const question = req.body.question;
+
+    const updatePolldata = await Poll.update(
+      { question: question },
+      {
+        where: {
+          id: pollId,
+        },
+      }
+    );
+
+    console.log(updatePolldata);
+    if (updatePolldata) {
+      return res.status(200).json({
+        poll: updatePolldata,
+        message: "Poll data updated succesfully",
+        success: true,
+      });
+    }
+  } catch (error) {
+    console.error("Error occurred during geting poll data:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
+  }
+};
+
+exports.deletePoll = async (req, res, next) => {
+  try {
+    console.log(req.body.pollId);
+    const deletePollData = await Poll.destroy({
+      where: {
+        id: req.body.pollId,
+      },
+    });
+    if (deletePollData) {
+      return res.status(200).json({
+        poll: deletePollData,
+        message: "Poll data deleted succesfully",
+        success: true,
+      });
+    }
+  } catch (error) {
+    console.error("Error occurred deleting poll data:", error);
     return res
       .status(500)
       .json({ message: "Internal server error", success: false });
