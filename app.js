@@ -17,7 +17,7 @@ const User = require("./models/userModel");
 //Route Import
 const userRoute = require("./routes/userRoute");
 
-app.use("/user", userRoute);
+app.use("/api/user", userRoute);
 
 app.use((req, res) => {
   //console.log(req.url);

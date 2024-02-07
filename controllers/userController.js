@@ -21,35 +21,39 @@ exports.postSignup = async (req, res, next) => {
       phone: req.body.phone,
     };
 
-    //Find if email allready exist
+    // Find if email already exists
     const user = await User.findAll({
       attributes: ["email"],
       where: { email: req.body.email },
     });
 
-    //If user allready exist with same email return appropriate message else create new user
-    if (typeof user !== "undefined" && user.length > 0) {
-      res.status(401).json({
+    // If user already exists with the same email, return an appropriate message else, create a new user
+    if (user && user.length > 0) {
+      return res.status(401).json({
         message: "User already exists, Please Login",
         success: false,
       });
     } else {
-      //Hash the password for more security
+      // Hash the password for more security
       const saltRounds = 10;
-      const hash = await bcrypt.hash(password, saltRounds);
+      const hash = await bcrypt.hash(newUserData.password, saltRounds);
       if (hash) {
         const insertData = await User.create({
-          name,
-          email,
+          name: newUserData.name,
+          email: newUserData.email,
           password: hash,
-          phone: phone,
+          phone: newUserData.phone,
         });
-        //Return succesful message after user creation
-        res.status(201).json({ message: "Sign Up Succesful", success: true });
+        // Return a successful message after user creation
+        return res
+          .status(201)
+          .json({ message: "Sign Up Successful", success: true });
       }
     }
   } catch (error) {
-    console.error(error.message);
-    return res.status(500).send({ message: error.message });
+    console.error("Error occurred during signup:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
