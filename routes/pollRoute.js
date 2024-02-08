@@ -11,4 +11,10 @@ router.get("/get_poll_by_id", auth.authenticate, pollController.getPollById);
 router.post("/edit_poll", auth.authenticate, pollController.editPoll);
 router.post("/delete_poll_by_id", auth.authenticate, pollController.deletePoll);
 
+router.get(
+  "/get_active_polls",
+  auth.authenticate,
+  pollController.getActivePolls
+);
+
 module.exports = router;

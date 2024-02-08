@@ -63,7 +63,7 @@ exports.getOptions = async (req, res, next) => {
         userId: req.user.id,
       },
     });
-    console.log(optionData);
+    //console.log(optionData);
 
     if (optionData && optionData.length > 0) {
       return res.status(200).json({ options: optionData, success: true });
@@ -86,7 +86,7 @@ exports.deleteOptionById = async (req, res, next) => {
         userId: req.user.id,
       },
     });
-    console.log(optionDeleteData);
+    //console.log(optionDeleteData);
 
     if (optionDeleteData) {
       return res
