@@ -37,6 +37,7 @@ exports.createPoll = async (req, res, next) => {
     const pollInsertData = await Poll.create({
       question: req.body.question,
       userId: req.user.id,
+      active_time: req.body.active_time,
     });
     console.log(pollInsertData);
     if (pollInsertData) {
@@ -82,9 +83,10 @@ exports.editPoll = async (req, res, next) => {
 
     const pollId = req.body.id;
     const question = req.body.question;
+    const active_time = req.body.active_time;
 
     const updatePolldata = await Poll.update(
-      { question: question },
+      { question: question, active_time: active_time },
       {
         where: {
           id: pollId,
@@ -111,11 +113,14 @@ exports.editPoll = async (req, res, next) => {
 exports.deletePoll = async (req, res, next) => {
   try {
     console.log(req.body.pollId);
-    const deletePollData = await Poll.destroy({
-      where: {
-        id: req.body.pollId,
-      },
-    });
+    const deletePollData = await Poll.update(
+      { status: false },
+      {
+        where: {
+          id: req.body.pollId,
+        },
+      }
+    );
     if (deletePollData) {
       return res.status(200).json({
         poll: deletePollData,

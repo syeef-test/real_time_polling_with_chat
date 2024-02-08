@@ -13,6 +13,15 @@ const Polls = sequelize.define("polls", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  status: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  active_time: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
 });
 
 module.exports = Polls;

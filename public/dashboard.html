@@ -172,6 +172,8 @@
                                             <th scope="col">#</th>
                                             <th scope="col">Question</th>
                                             <th scope="col">Date Created</th>
+                                            <th scope="col">Active Till</th>
+                                            <th scope="col">Status</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -198,6 +200,10 @@
                                 <label for="question" class="form-label">Question</label>
                                 <input type="text" class="form-control" id="question" />
                             </div>
+                            <div class="mb-3">
+                                <label for="active_time" class="form-label">Active Till</label>
+                                <input type="date" class="form-control" id="active_time" />
+                            </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
                         <div>
@@ -217,6 +223,11 @@
                                 <label for="question" class="form-label">Question</label>
                                 <input type="text" class="form-control" id="editQuestion" />
                                 <input type="hidden" class="form-control" id="editQuestionId" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_active_time" class="form-label">Active Till</label>
+                                <input type="date" class="form-control" id="edit_active_time" />
+
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
@@ -272,9 +283,19 @@
 
             const questionInput = document.getElementById('editQuestion');
             const questionInputId = document.getElementById('editQuestionId');
+            const activeTime = document.getElementById('edit_active_time');
             //console.log(response.question);
             questionInput.value = response.data.poll[0].question;
             questionInputId.value = pollId;
+            //activeTime.value = response.data.poll[0].active_time;
+
+            const currentDate = new Date(response.data.poll[0].active_time);
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            activeTime.value = formattedDate;
+
 
             $('#editPollModal').modal('show');
         } catch (error) {
@@ -371,15 +392,21 @@
                     const createdAt = new Date(poll.createdAt);
                     const formattedDate = createdAt.toLocaleString();
 
+                    const active_time = new Date(poll.active_time);
+                    const formattedActive_time = active_time.toLocaleString();
+
+                    const disableButtons = poll.status === false ? 'disabled' : '';
 
                     const newRow = `
                 <tr>
                     <th scope="row">${index + 1}</th>
                     <td>${poll.question}</td>
                     <td>${formattedDate}</td>
+                    <td>${formattedActive_time}</td>
+                    <td>${poll.status}</td>
                     <td>
-                        <button class="btn btn-success" onClick='showEditPollModal(${poll.id})'>Edit</button>
-                        <button class="btn btn-danger" onClick='showDeletePollModal(${poll.id})'>Delete</button>
+                        <button class="btn btn-success" onClick='showEditPollModal(${poll.id})' ${disableButtons}>Edit</button>
+                        <button class="btn btn-danger" onClick='showDeletePollModal(${poll.id})' ${disableButtons}>Delete</button>
                     </td>
                 </tr>
             `;
@@ -395,12 +422,14 @@
         try {
             event.preventDefault();
             const question = event.target.question.value;
+            const active_time = event.target.active_time.value;
 
             if (question.length === 0) {
                 alert("Question can't be empty");
             } else {
                 const obj = {
                     question: question,
+                    active_time: active_time
                 };
                 const token = localStorage.getItem('token');
                 const pollData = await axios.post(
@@ -429,13 +458,15 @@
             event.preventDefault();
             const question = event.target.editQuestion.value;
             const id = event.target.editQuestionId.value;
+            const active_time = event.target.edit_active_time.value;
 
             if (question.length === 0) {
                 alert("Question can't be empty");
             } else {
                 const obj = {
                     question: question,
-                    id: id
+                    id: id,
+                    active_time: active_time
                 };
                 const token = localStorage.getItem('token');
                 const pollData = await axios.post(
