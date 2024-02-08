@@ -737,7 +737,7 @@
                         pollRow.innerHTML = `
                         <th scope="row">${index + 1}</th>
                         <td>${poll.question}</td>
-                         <td id="voteCount-${poll.id}">${poll.countVote}</td>
+                         <td id="voteCount-${poll.id}">${poll.countVote !== null ? poll.countVote : 0}</td>
                     `;
                         tableBody.appendChild(pollRow);
                         poll.options.forEach((option, optionIndex) => {
