@@ -77,9 +77,66 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("activePollsData", { data: activePolls });
     } catch (error) {
       console.error("Error occurred getting active poll data:", error);
-      io.to(socket.id).emit("activePollsDataError", {
-        message: "Internal server error",
+    }
+  });
+
+  //Handle Vote event
+  socket.on("updateVoteOnServer", async (data) => {
+    try {
+      console.log("Received vote update:", data);
+      const pollId = data.pollId;
+      const optionId = data.optionId;
+      const username = data.username;
+
+      const userData = await User.findOne({ where: { name: username } });
+      console.log(userData.id);
+
+      //Check user given vote allreay on that poll
+      const prevData = await Vote.findAll({
+        where: {
+          userId: userData.id,
+          pollId: pollId,
+        },
       });
+      // console.log("VoteData", prevData);
+      if (prevData.length > 0) {
+        console.log("Allready voted on this poll please try another poll");
+        socket.emit("updateVoteOnServerError", {
+          message: "Allready voted on this poll please try another poll",
+        });
+      } else {
+        //Insert Vote Data
+        const insertVote = await Vote.create({
+          pollId: pollId,
+          userId: userData.id,
+          optionId: optionId,
+        });
+        //console.log(insertVote);
+
+        //Update count value on poll table
+        const prevVoteCount = await Poll.findOne({ where: { id: pollId } });
+        console.log("prevCountVote", prevVoteCount.countVote);
+        const newVoteCount = await Poll.update(
+          { countVote: prevVoteCount.countVote + 1 },
+          { where: { id: pollId } }
+        );
+
+        const updatedPoll = await Poll.findOne({ where: { id: pollId } });
+
+        socket.emit("voteCountUpdateOnlyClient", {
+          pollId: pollId,
+          newVoteCount: updatedPoll.countVote,
+          optionId: optionId,
+        });
+
+        socket.broadcast.emit("voteCountUpdateOnClient", {
+          pollId: pollId,
+          newVoteCount: updatedPoll.countVote,
+          optionId: optionId,
+        });
+      }
+    } catch (error) {
+      console.error("Error occurred during vote data insert:", error);
     }
   });
 

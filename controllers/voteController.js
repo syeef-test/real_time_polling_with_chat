@@ -11,7 +11,7 @@ exports.createVote = async (req, res, next) => {
     const pollId = req.body.pollId;
     const optionId = req.body.optionId;
 
-    const prevData = Vote.findAll({
+    const prevData = await Vote.findAll({
       where: {
         userId: req.user.id,
         pollId: pollId,

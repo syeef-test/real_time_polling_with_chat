@@ -1,5 +1,4 @@
 const Sequelize = require("sequelize");
-
 const sequelize = require("../util/database");
 
 const Votes = sequelize.define("votes", {
@@ -8,10 +7,6 @@ const Votes = sequelize.define("votes", {
     autoIncrement: true,
     allowNull: false,
     primaryKey: true,
-  },
-  countVote: {
-    type: Sequelize.NUMBER,
-    allowNull: true,
   },
 });
 

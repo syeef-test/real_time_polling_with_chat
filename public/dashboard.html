@@ -205,7 +205,6 @@
                                         <tr>
                                             <th scope="col">#</th>
                                             <th scope="col">Question</th>
-                                            <th scope="col">Action</th>
                                             <th scope="col">Vote Count</th>
                                         </tr>
                                     </thead>
@@ -419,9 +418,6 @@
                 option.textContent = poll.question;
                 selectQuestion.appendChild(option);
             });
-
-
-
 
             $('#addOptionModal').modal('show');
         } catch (error) {
@@ -723,6 +719,7 @@
                         pollRow.innerHTML = `
                         <th scope="row">${index + 1}</th>
                         <td>${poll.question}</td>
+                         <td id="voteCount-${poll.id}">${poll.countVote}</td>
                     `;
                         tableBody.appendChild(pollRow);
                         poll.options.forEach((option, optionIndex) => {
@@ -732,7 +729,8 @@
                             <td>${option.option_text}</td>
                             <td>
                                 <button class="btn btn-success" id="voteButton-${poll.id}-${option.id}" onclick="voteForOption(${poll.id}, ${option.id})">Vote</button>
-                            </td>    
+                            </td> 
+                               
                         `;
                             tableBody.appendChild(optionRow);
                         });
@@ -743,6 +741,34 @@
             console.log(error);
         }
     }
+
+    function voteForOption(pollId, optionId) {
+        // alert("Vote Update Function Called");
+        const username = localStorage.getItem('username');
+        socket.emit('updateVoteOnServer', { pollId: pollId, optionId: optionId, username: username });
+
+        // Listen for the voteCountUpdated event from the server
+        socket.on('voteCountUpdateOnlyClient', (updatedData) => {
+            console.log("Updated Data", updatedData);
+            const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
+            if (voteCountCell2) {
+                voteCountCell2.innerText = updatedData.newVoteCount; // Use updatedData.newVoteCount
+            }
+        });
+        socket.on('updateVoteOnServerError', (message) => {
+            alert(message.message);
+        });
+    }
+
+    // Listen for the voteCountUpdated event from the server
+    socket.on('voteCountUpdateOnClient', (updatedData) => {
+        // console.log("Updated Data", updatedData);
+        const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
+        if (voteCountCell2) {
+            voteCountCell2.innerText = updatedData.newVoteCount; // Use updatedData.newVoteCount
+        }
+    });
+
 
 
 

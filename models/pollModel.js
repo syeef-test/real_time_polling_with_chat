@@ -22,6 +22,11 @@ const Polls = sequelize.define("polls", {
     type: Sequelize.DATE,
     allowNull: false,
   },
+  countVote: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+    default: 0,
+  },
 });
 
 module.exports = Polls;
