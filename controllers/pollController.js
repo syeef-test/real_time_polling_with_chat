@@ -137,25 +137,25 @@ exports.deletePoll = async (req, res, next) => {
   }
 };
 
-exports.getActivePolls = async (req, res, next) => {
-  try {
-    // console.log("Get active polls");
+// exports.getActivePolls = async (req, res, next) => {
+//   try {
+//     // console.log("Get active polls");
 
-    const activePolls = await Poll.findAll({ where: { status: true } });
-    //console.log(activePolls);
+//     const activePolls = await Poll.findAll({ where: { status: true } });
+//     //console.log(activePolls);
 
-    for (let poll of activePolls) {
-      const options = await Option.findAll({ where: { pollId: poll.id } });
-      poll.dataValues.options = options;
-    }
+//     for (let poll of activePolls) {
+//       const options = await Option.findAll({ where: { pollId: poll.id } });
+//       poll.dataValues.options = options;
+//     }
 
-    //console.log(activePolls);
+//     //console.log(activePolls);
 
-    return res.status(200).json({ data: activePolls, success: true });
-  } catch (error) {
-    console.error("Error occurred deleting poll data:", error);
-    return res
-      .status(500)
-      .json({ message: "Internal server error", success: false });
-  }
-};
+//     return res.status(200).json({ data: activePolls, success: true });
+//   } catch (error) {
+//     console.error("Error occurred deleting poll data:", error);
+//     return res
+//       .status(500)
+//       .json({ message: "Internal server error", success: false });
+//   }
+// };

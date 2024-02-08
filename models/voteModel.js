@@ -9,6 +9,10 @@ const Votes = sequelize.define("votes", {
     allowNull: false,
     primaryKey: true,
   },
+  countVote: {
+    type: Sequelize.NUMBER,
+    allowNull: true,
+  },
 });
 
 module.exports = Votes;
