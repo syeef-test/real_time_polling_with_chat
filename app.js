@@ -15,15 +15,18 @@ app.use(cors());
 const User = require("./models/userModel");
 const Poll = require("./models/pollModel");
 const Option = require("./models/optionModel");
+const Vote = require("./models/voteModel");
 
 //Route Import
 const userRoute = require("./routes/userRoute");
 const pollRoute = require("./routes/pollRoute");
 const optionRoute = require("./routes/optionRoute");
+const voteRoute = require("./routes/voteRoute");
 
 app.use("/api/user", userRoute);
 app.use("/api/poll", pollRoute);
 app.use("/api/option", optionRoute);
+app.use("/api/vote", voteRoute);
 
 app.use((req, res) => {
   //console.log(req.url);
@@ -39,6 +42,13 @@ Option.belongsTo(Poll);
 
 User.hasMany(Option);
 Option.belongsTo(User);
+
+User.hasMany(Vote);
+Vote.belongsTo(User);
+Poll.hasMany(Vote);
+Vote.belongsTo(Poll);
+Option.hasMany(Vote);
+Vote.belongsTo(Option);
 
 async function startServer() {
   try {

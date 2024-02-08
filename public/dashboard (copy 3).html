@@ -685,81 +685,6 @@
 
     }
 
-    // async function showActivePolls() {
-    //     try {
-    //         const activePollTableSection = document.querySelector('#activePollTable');
-    //         activePollTableSection.style.display = 'block';
-
-    //         const token = localStorage.getItem('token');
-    //         const data = await axios.get('http://127.0.0.1:3000/api/poll/get_active_polls', {
-    //             headers: {
-    //                 'authorization': token
-    //             }
-    //         });
-    //         const response = data.data;
-    //         console.log(response);
-
-    //         const tableBody = document.querySelector('#activePollTable tbody');
-    //         tableBody.innerHTML = '';
-
-    //         if (response.length === 0) {
-    //             const noDataRow = `
-    //             <tr>
-    //                 <td colspan="4" class="text-center">No data available</td>
-    //             </tr>
-    //         `;
-    //             tableBody.insertAdjacentHTML('beforeend', noDataRow);
-    //         } else {
-    //             response.data.forEach((poll, index) => {
-    //                 const pollRow = document.createElement('tr');
-    //                 pollRow.innerHTML = `
-    //                 <th scope="row">${index + 1}</th>
-    //                 <td>${poll.question}</td>
-    //                 <td>${poll.status}</td>
-    //             `;
-    //                 tableBody.appendChild(pollRow);
-
-    //                 poll.options.forEach((option, optionIndex) => {
-    //                     const optionRow = document.createElement('tr');
-    //                     optionRow.innerHTML = `
-    //                     <td></td>
-    //                     <td>${option.option_text}</td>
-    //                     <td>
-    //                         <button class="btn btn-success" onclick="voteForOption(${poll.id}, ${option.id})">Vote</button>
-    //                     </td>    
-    //                 `;
-    //                     tableBody.appendChild(optionRow);
-    //                 });
-    //             });
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
-    // async function voteForOption(pollId, optionId) {
-    //     try {
-    //         // Disable all "Vote" buttons in the same poll section
-    //         const pollRows = document.querySelectorAll(`#activePollTable tbody tr`);
-    //         pollRows.forEach(row => {
-    //             const pollIdAttr = row.querySelector('th').innerText;
-    //             if (pollIdAttr == pollId) {
-    //                 const voteButtons = row.querySelectorAll('.btn-success');
-    //                 voteButtons.forEach(button => {
-    //                     button.disabled = true;
-    //                 });
-    //             }
-    //         });
-
-    //         console.log("pollid:", pollId, "optionid:", optionId);
-
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
-    let votedPollIds = []; // Array to store the IDs of polls for which a vote has been cast
-
     async function showActivePolls() {
         try {
             const activePollTableSection = document.querySelector('#activePollTable');
@@ -779,30 +704,30 @@
 
             if (response.length === 0) {
                 const noDataRow = `
-            <tr>
-                <td colspan="4" class="text-center">No data available</td>
-            </tr>
-        `;
+                <tr>
+                    <td colspan="4" class="text-center">No data available</td>
+                </tr>
+            `;
                 tableBody.insertAdjacentHTML('beforeend', noDataRow);
             } else {
                 response.data.forEach((poll, index) => {
                     const pollRow = document.createElement('tr');
                     pollRow.innerHTML = `
-                <th scope="row">${index + 1}</th>
-                <td>${poll.question}</td>
-                <td>${poll.status}</td>
-            `;
+                    <th scope="row">${index + 1}</th>
+                    <td>${poll.question}</td>
+                    <td>${poll.status}</td>
+                `;
                     tableBody.appendChild(pollRow);
 
                     poll.options.forEach((option, optionIndex) => {
                         const optionRow = document.createElement('tr');
                         optionRow.innerHTML = `
-                    <td></td>
-                    <td>${option.option_text}</td>
-                    <td>
-                        <button class="btn btn-success" id="voteButton-${poll.id}-${option.id}" onclick="voteForOption(${poll.id}, ${option.id})">Vote</button>
-                    </td>    
-                `;
+                        <td></td>
+                        <td>${option.option_text}</td>
+                        <td>
+                            <button class="btn btn-success" onclick="voteForOption(${poll.id}, ${option.id})">Vote</button>
+                        </td>    
+                    `;
                         tableBody.appendChild(optionRow);
                     });
                 });
@@ -814,52 +739,24 @@
 
     async function voteForOption(pollId, optionId) {
         try {
-            if (!votedPollIds.includes(pollId)) { // Check if vote has been cast for this poll
-                votedPollIds.push(pollId); // Add pollId to the array of voted polls
-                console.log("pollid:", pollId, "optionid:", optionId);
-
-                //Call  addVote() to add data on database
-                addVote(pollId, optionId);
-                // Disable other vote buttons in the same poll
-                const pollOptionButtons = document.querySelectorAll(`#activePollTable button[id^="voteButton-${pollId}-"]`);
-                pollOptionButtons.forEach(button => {
-                    button.disabled = true;
-                });
-            } else {
-                console.log("Vote has already been cast for this poll.");
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    async function addVote(pollId, optionId) {
-        try {
-            const obj = {
-                pollId: pollId,
-                optionId: optionId
-            };
-            const token = localStorage.getItem('token');
-            const voteData = await axios.post(
-                "http://127.0.0.1:3000/api/vote/create_vote",
-                obj, {
-                headers: {
-                    'authorization': token
+            // Disable all "Vote" buttons in the same poll section
+            const pollRows = document.querySelectorAll(`#activePollTable tbody tr`);
+            pollRows.forEach(row => {
+                const pollIdAttr = row.querySelector('th').innerText;
+                if (pollIdAttr == pollId) {
+                    const voteButtons = row.querySelectorAll('.btn-success');
+                    voteButtons.forEach(button => {
+                        button.disabled = true;
+                    });
                 }
-            }
-            );
+            });
 
-            console.log(voteData.data);
-
-            if (voteData.data.success === true) {
-                alert(voteData.data.message);
-            }
+            console.log("pollid:", pollId, "optionid:", optionId);
 
         } catch (error) {
             console.log(error);
         }
     }
-
 
 
 
