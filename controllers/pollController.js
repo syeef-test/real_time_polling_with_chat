@@ -114,18 +114,26 @@ exports.editPoll = async (req, res, next) => {
 exports.deletePoll = async (req, res, next) => {
   try {
     console.log(req.body.pollId);
-    const deletePollData = await Poll.update(
-      { status: false },
+    const oldStatus = await Poll.findOne({
+      where: {
+        id: req.body.pollId,
+      },
+    });
+
+    console.log(oldStatus.status);
+    const newStatus = !oldStatus.status;
+    const updatePollData = await Poll.update(
+      { status: newStatus },
       {
         where: {
           id: req.body.pollId,
         },
       }
     );
-    if (deletePollData) {
+    if (updatePollData) {
       return res.status(200).json({
-        poll: deletePollData,
-        message: "Poll data deleted succesfully",
+        poll: updatePollData,
+        message: "Poll data updated succesfully",
         success: true,
       });
     }

@@ -27,10 +27,21 @@ exports.postSignup = async (req, res, next) => {
       where: { email: req.body.email },
     });
 
+    // Find if username already exists
+    const userName = await User.findAll({
+      attributes: ["name"],
+      where: { name: req.body.name },
+    });
+
     // If user already exists with the same email, return an appropriate message else, create a new user
     if (user && user.length > 0) {
       return res.status(401).json({
-        message: "User already exists, Please Login",
+        message: "User already exists by this email, Please Login",
+        success: false,
+      });
+    } else if (userName && userName.length > 0) {
+      return res.status(401).json({
+        message: "User already exists by this name, Please Login",
         success: false,
       });
     } else {

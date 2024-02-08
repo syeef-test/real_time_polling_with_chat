@@ -9,7 +9,7 @@ exports.getOptionByPollIdUserId = async (req, res, next) => {
     const pollCreatedByUser = await Poll.findAll({
       where: {
         userId: req.user.id,
-        status: true,
+        status: false,
       },
     });
 
@@ -63,7 +63,7 @@ exports.getOptions = async (req, res, next) => {
         userId: req.user.id,
       },
     });
-    //console.log(optionData);
+    console.log(optionData);
 
     if (optionData && optionData.length > 0) {
       return res.status(200).json({ options: optionData, success: true });

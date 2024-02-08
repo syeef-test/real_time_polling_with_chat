@@ -16,7 +16,7 @@ const Polls = sequelize.define("polls", {
   status: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: true,
+    defaultValue: false,
   },
   active_time: {
     type: Sequelize.DATE,

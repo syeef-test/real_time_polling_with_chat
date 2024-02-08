@@ -103,6 +103,7 @@ io.on("connection", (socket) => {
         console.log("Allready voted on this poll please try another poll");
         socket.emit("updateVoteOnServerError", {
           message: "Allready voted on this poll please try another poll",
+          data: { pollId: pollId, optionId: optionId },
         });
       } else {
         //Insert Vote Data
