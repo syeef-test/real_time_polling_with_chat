@@ -146,13 +146,14 @@
                                         <button class="accordion-button collapsed" type="button"
                                             data-bs-toggle="collapse" data-bs-target="#flush-collapseFour"
                                             aria-expanded="false" aria-controls="flush-collapseFour">
-                                            Chat
+                                            Chat Options
                                         </button>
                                     </h2>
                                     <div id="flush-collapseFour" class="accordion-collapse collapse"
                                         data-bs-parent="#accordionFlushExample">
                                         <div class="accordion-body">
-
+                                            <button type="button" class="btn btn-primary"
+                                                onclick="showChatWindow()">Load Chat Histroy</button>
                                         </div>
                                     </div>
                                 </div>
@@ -212,7 +213,12 @@
                                     </tbody>
                                 </table>
                             </section>
-
+                            <section id="chatWindow" style="display: none;">
+                                <h3>Chat Now</h3>
+                                <div id="chatMessages"></div>
+                                <input type="text" id="chatInput" placeholder="Type your message...">
+                                <button onclick="sendMessage()" class="btn btn-success">Send</button>
+                            </section>
                         </div>
                     </div>
                 </div>
@@ -316,7 +322,7 @@
 
         <!-- Add here -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
 </body>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
@@ -716,6 +722,11 @@
             const activePollTableSection = document.querySelector('#activePollTable');
             activePollTableSection.style.display = 'block';
 
+
+
+            const chatWindowSection = document.querySelector('#chatWindow');
+            chatWindowSection.style.display = 'block';
+
             // Emit an event to the server to request active polls data
             socket.emit('getActivePolls');
 
@@ -781,7 +792,7 @@
         // console.log("Updated Data", updatedData);
         const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
         if (voteCountCell2) {
-            voteCountCell2.innerText = updatedData.newVoteCount; // Use updatedData.newVoteCount
+            voteCountCell2.innerText = updatedData.newVoteCount;
         }
     });
 
@@ -793,9 +804,45 @@
 
         const voteButtons = document.querySelectorAll(`[id^="voteButton-${pollId}-"]`);
         voteButtons.forEach((button) => {
-            button.disabled = true; // Disable each vote button
+            button.disabled = true;
         });
     });
+
+    function sendMessage() {
+        const messageInput = document.getElementById('chatInput');
+        const message = messageInput.value.trim();
+        if (message !== '') {
+            const username = localStorage.getItem('username');
+            socket.emit('chatMessage', { message, username });
+            messageInput.value = ''; username
+        }
+    }
+    socket.on('chatMessage', ({ username, message }) => {
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        const newMessageDiv = document.createElement('div');
+        newMessageDiv.textContent = `${username}: ${message}`;
+        chatMessagesDiv.appendChild(newMessageDiv);
+    });
+
+
+    function loadChatHistory() {
+        socket.emit('requestChatHistory');
+        socket.on('chatHistory', (history) => {
+            const chatMessagesDiv = document.getElementById('chatMessages');
+            chatMessagesDiv.innerHTML = '';
+            history.forEach(({ username, message }) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = `${username}: ${message}`;
+                chatMessagesDiv.appendChild(messageDiv);
+            });
+        });
+    }
+
+    function showChatWindow() {
+        const chatWindowSection = document.querySelector('#chatWindow');
+        chatWindowSection.style.display = 'block';
+        loadChatHistory();
+    }
 
 </script>
 

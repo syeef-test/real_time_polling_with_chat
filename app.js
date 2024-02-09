@@ -24,6 +24,7 @@ const User = require("./models/userModel");
 const Poll = require("./models/pollModel");
 const Option = require("./models/optionModel");
 const Vote = require("./models/voteModel");
+const Chat = require("./models/chatModel");
 
 // Route Import
 const userRoute = require("./routes/userRoute");
@@ -139,6 +140,34 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error("Error occurred during vote data insert:", error);
     }
+  });
+
+  //Handle Chat
+  socket.on("chatMessage", async (data) => {
+    console.log("message from client:", data);
+    const message = data.message;
+    const username = data.username;
+
+    //const userData = await User.findOne({ where: { name: username } });
+    // console.log(userData.id);
+
+    const insertChatData = await Chat.create({
+      username: username,
+      message_text: message,
+    });
+    if (insertChatData) {
+      //Send to client who sent the message
+      socket.emit("chatMessage", { username, message });
+      //Send to all client who are connected except who sent the message
+      socket.broadcast.emit("chatMessage", { username, message });
+    }
+  });
+
+  //Handle chat histroy
+  socket.on("requestChatHistory", async () => {
+    const chatHistory = await Chat.findAll();
+    // console.log(chatHistory);
+    socket.emit("chatHistory", chatHistory);
   });
 
   // Handle disconnection
