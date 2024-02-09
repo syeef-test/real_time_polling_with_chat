@@ -214,7 +214,7 @@
                                 </table>
                             </section>
                             <section id="chatWindow" style="display: none;">
-                                <h3>Chat Now</h3>
+                                <h3>Chat</h3>
                                 <div id="chatMessages"></div>
                                 <input type="text" id="chatInput" placeholder="Type your message...">
                                 <button onclick="sendMessage()" class="btn btn-success">Send</button>
@@ -722,7 +722,9 @@
             const activePollTableSection = document.querySelector('#activePollTable');
             activePollTableSection.style.display = 'block';
 
-
+            //Clear window of chat
+            const chatMessagesDiv = document.getElementById('chatMessages');
+            chatMessagesDiv.innerHTML = '';
 
             const chatWindowSection = document.querySelector('#chatWindow');
             chatWindowSection.style.display = 'block';
@@ -772,76 +774,110 @@
     }
 
     function voteForOption(pollId, optionId) {
-        // alert("Vote Update Function Called");
-        const username = localStorage.getItem('username');
-        socket.emit('updateVoteOnServer', { pollId: pollId, optionId: optionId, username: username });
+        try {
+            // alert("Vote Update Function Called");
+            const username = localStorage.getItem('username');
+            socket.emit('updateVoteOnServer', { pollId: pollId, optionId: optionId, username: username });
 
-        // Listen for the voteCountUpdated event from the server
-        socket.on('voteCountUpdateOnlyClient', (updatedData) => {
-            console.log("Updated Data", updatedData);
-            const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
-            if (voteCountCell2) {
-                voteCountCell2.innerText = updatedData.newVoteCount; // Use updatedData.newVoteCount
-            }
-        });
+            // Listen for the voteCountUpdated event from the server
+            socket.on('voteCountUpdateOnlyClient', (updatedData) => {
+                console.log("Updated Data", updatedData);
+                const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
+                if (voteCountCell2) {
+                    voteCountCell2.innerText = updatedData.newVoteCount;
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
 
     }
 
     // Listen for the voteCountUpdated event from the server
     socket.on('voteCountUpdateOnClient', (updatedData) => {
-        // console.log("Updated Data", updatedData);
-        const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
-        if (voteCountCell2) {
-            voteCountCell2.innerText = updatedData.newVoteCount;
+        try {
+            // console.log("Updated Data", updatedData);
+            const voteCountCell2 = document.getElementById(`voteCount-${updatedData.pollId}`);
+            if (voteCountCell2) {
+                voteCountCell2.innerText = updatedData.newVoteCount;
+            }
+        } catch (error) {
+            console.log(error);
         }
+
     });
 
     socket.on('updateVoteOnServerError', (message) => {
-        console.log(message.data);
-        const pollId = message.data.pollId;
-        const optionId = message.data.pollId;
-        alert(message.message);
+        try {
+            console.log(message.data);
+            const pollId = message.data.pollId;
+            const optionId = message.data.pollId;
+            alert(message.message);
 
-        const voteButtons = document.querySelectorAll(`[id^="voteButton-${pollId}-"]`);
-        voteButtons.forEach((button) => {
-            button.disabled = true;
-        });
+            const voteButtons = document.querySelectorAll(`[id^="voteButton-${pollId}-"]`);
+            voteButtons.forEach((button) => {
+                button.disabled = true;
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
     });
 
     function sendMessage() {
-        const messageInput = document.getElementById('chatInput');
-        const message = messageInput.value.trim();
-        if (message !== '') {
-            const username = localStorage.getItem('username');
-            socket.emit('chatMessage', { message, username });
-            messageInput.value = ''; username
+        try {
+            const messageInput = document.getElementById('chatInput');
+            const message = messageInput.value.trim();
+            if (message !== '') {
+                const username = localStorage.getItem('username');
+                socket.emit('chatMessage', { message, username });
+                messageInput.value = '';
+            }
+        } catch (error) {
+            console.log(error);
         }
+
     }
     socket.on('chatMessage', ({ username, message }) => {
-        const chatMessagesDiv = document.getElementById('chatMessages');
-        const newMessageDiv = document.createElement('div');
-        newMessageDiv.textContent = `${username}: ${message}`;
-        chatMessagesDiv.appendChild(newMessageDiv);
+        try {
+            const chatMessagesDiv = document.getElementById('chatMessages');
+            const newMessageDiv = document.createElement('div');
+            newMessageDiv.textContent = `${username}: ${message}`;
+            chatMessagesDiv.appendChild(newMessageDiv);
+        } catch (error) {
+            console.log(error);
+        }
     });
 
 
     function loadChatHistory() {
-        socket.emit('requestChatHistory');
-        socket.on('chatHistory', (history) => {
-            const chatMessagesDiv = document.getElementById('chatMessages');
-            chatMessagesDiv.innerHTML = '';
-            history.forEach(({ username, message }) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.textContent = `${username}: ${message}`;
-                chatMessagesDiv.appendChild(messageDiv);
+        try {
+            socket.emit('requestChatHistory');
+            socket.on('chatHistory', (history) => {
+                console.log(history)
+                const chatMessagesDiv = document.getElementById('chatMessages');
+                chatMessagesDiv.innerHTML = '';
+                history.forEach(({ username, message }) => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.textContent = `${username}: ${message}`;
+                    chatMessagesDiv.appendChild(messageDiv);
+                });
+
             });
-        });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     function showChatWindow() {
-        const chatWindowSection = document.querySelector('#chatWindow');
-        chatWindowSection.style.display = 'block';
-        loadChatHistory();
+        try {
+            const chatWindowSection = document.querySelector('#chatWindow');
+            chatWindowSection.style.display = 'block';
+            loadChatHistory();
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 </script>

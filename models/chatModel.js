@@ -12,7 +12,7 @@ const Chats = sequelize.define("chats", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  message_text: {
+  message: {
     type: Sequelize.STRING,
     allowNull: false,
   },

@@ -144,30 +144,39 @@ io.on("connection", (socket) => {
 
   //Handle Chat
   socket.on("chatMessage", async (data) => {
-    console.log("message from client:", data);
-    const message = data.message;
-    const username = data.username;
+    try {
+      console.log("message from client:", data);
+      const message = data.message;
+      const username = data.username;
 
-    //const userData = await User.findOne({ where: { name: username } });
-    // console.log(userData.id);
+      //const userData = await User.findOne({ where: { name: username } });
+      // console.log(userData.id);
 
-    const insertChatData = await Chat.create({
-      username: username,
-      message_text: message,
-    });
-    if (insertChatData) {
-      //Send to client who sent the message
-      socket.emit("chatMessage", { username, message });
-      //Send to all client who are connected except who sent the message
-      socket.broadcast.emit("chatMessage", { username, message });
+      const insertChatData = await Chat.create({
+        username: username,
+        message: message,
+      });
+      if (insertChatData) {
+        //Send to client who sent the message
+        socket.emit("chatMessage", { username, message });
+        //Send to all client who are connected except who sent the message
+        socket.broadcast.emit("chatMessage", { username, message });
+      }
+    } catch (error) {
+      console.error("Error occurred during handling chat:", error);
     }
   });
 
   //Handle chat histroy
   socket.on("requestChatHistory", async () => {
-    const chatHistory = await Chat.findAll();
-    // console.log(chatHistory);
-    socket.emit("chatHistory", chatHistory);
+    try {
+      const chatHistory = await Chat.findAll();
+      console.log(chatHistory);
+
+      socket.emit("chatHistory", chatHistory);
+    } catch (error) {
+      console.error("Error occurred during handling chat history:", error);
+    }
   });
 
   // Handle disconnection
