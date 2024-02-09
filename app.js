@@ -83,6 +83,7 @@ io.on("connection", (socket) => {
 
   //Handle Vote event
   socket.on("updateVoteOnServer", async (data) => {
+    const t = await sequelize.transaction(); // Start a transaction
     try {
       console.log("Received vote update:", data);
       const pollId = data.pollId;
@@ -136,8 +137,11 @@ io.on("connection", (socket) => {
           newVoteCount: updatedPoll.countVote,
           optionId: optionId,
         });
+
+        await t.commit(); // Commit the transaction
       }
     } catch (error) {
+      await t.rollback(); // Rollback the transaction in case of error
       console.error("Error occurred during vote data insert:", error);
     }
   });

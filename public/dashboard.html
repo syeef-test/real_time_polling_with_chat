@@ -872,6 +872,15 @@
 
     function showChatWindow() {
         try {
+            const pollTableSection = document.querySelector('#pollTable');
+            pollTableSection.style.display = 'none';
+
+            const activePollTableSection = document.querySelector('#activePollTable');
+            activePollTableSection.style.display = 'none';
+
+            const optionTableSection = document.querySelector('#optionTable');
+            optionTableSection.style.display = 'none';
+
             const chatWindowSection = document.querySelector('#chatWindow');
             chatWindowSection.style.display = 'block';
             loadChatHistory();
